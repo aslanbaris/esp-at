@@ -315,6 +315,12 @@ static void at_nvs_flash_init_partition(void)
 static void esp_at_ready(void)
 {
     esp_at_port_active_write_data((uint8_t *)s_ready_str, strlen(s_ready_str));
+    
+    char version_str[64];
+    int len = snprintf(version_str, sizeof(version_str), "[%s]\r\n", CONFIG_APP_PROJECT_VER);
+    if (len > 0) {
+        esp_at_port_active_write_data((uint8_t *)version_str, len);
+    }
 }
 
 static IRAM_ATTR void at_alloc_failed_cb(size_t requested_size, uint32_t caps, const char *function_name)
