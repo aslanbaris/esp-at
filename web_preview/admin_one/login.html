@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SG200 FPC - Login</title>
+
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="icons.css">
+
+    <style>
+        body {
+            background: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: #792334;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .login-header .header-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .login-header .logo {
+            width: 50px;
+            height: 50px;
+            filter: brightness(0) invert(1);
+        }
+
+        .login-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .login-header p {
+            margin: 5px 0 0;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .login-header .header-text {
+            text-align: left;
+        }
+
+        .login-body {
+            padding: 30px;
+        }
+
+        .login-footer {
+            padding: 20px 30px;
+            background: #f5f5f5;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #792334;
+        }
+
+        .button.is-primary {
+            width: 100%;
+            background: #792334;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .button.is-primary:hover {
+            background: #5a1a27;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .icon-input {
+            position: relative;
+        }
+
+        .icon-input .icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .icon-input .input {
+            padding-left: 45px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="header-brand">
+                    <img src="img/tay.svg" alt="Taytech" class="logo">
+                    <div class="header-text">
+                        <h1><b>SG200</b> FPC</h1>
+                        <p>Fire Pump Controller</p>
+                    </div>
+                </div>
+            </div>
+            <div class="login-body">
+                <div id="error-message" class="error-message">
+                    <span class="icon"><i class="mdi mdi-alert-circle"></i></span>
+                    Invalid username or password
+                </div>
+                <form id="login-form" onsubmit="return handleLogin(event)">
+                    <div class="field">
+                        <label class="label">Username</label>
+                        <div class="icon-input">
+                            <span class="icon"><i class="mdi mdi-account"></i></span>
+                            <input type="text" id="username" class="input" placeholder="Enter username" required
+                                autofocus>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Password</label>
+                        <div class="icon-input">
+                            <span class="icon"><i class="mdi mdi-lock"></i></span>
+                            <input type="password" id="password" class="input" placeholder="Enter password" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <button type="submit" class="button is-primary">
+                            <span class="icon"><i class="mdi mdi-login"></i></span>
+                            <span>Login</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="login-footer">
+                © 2026 Taytech AS
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default credentials
+        const DEFAULT_USERNAME = 'admin';
+        const DEFAULT_PASSWORD = 'taytech';
+
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-message');
+
+            if (username === DEFAULT_USERNAME && password === DEFAULT_PASSWORD) {
+                // Store authentication in sessionStorage
+                sessionStorage.setItem('sg200_authenticated', 'true');
+                sessionStorage.setItem('sg200_username', username);
+
+                // Redirect to dashboard
+                window.location.href = 'index.html';
+            } else {
+                // Show error message
+                errorMsg.style.display = 'block';
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+
+            return false;
+        }
+
+        // If already authenticated, redirect to dashboard
+        if (sessionStorage.getItem('sg200_authenticated') === 'true') {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

@@ -8,7 +8,8 @@
   <title>SG200 FPC Dashboard</title>
 
   <!-- Bulma is included -->
-  <link rel="stylesheet" href="css/main.min.css">
+  <script src="js/auth.js"></script>
+  <link rel="stylesheet" href="main.css">
 
   <!-- Fonts -->
 
@@ -34,7 +35,7 @@
           <div class="navbar-item">
             <span>John Doe</span>
           </div>
-          <a title="Log out" class="navbar-item is-desktop-icon-only">
+          <a title="Log out" class="navbar-item is-desktop-icon-only" onclick="logout(); return false;" href="#">
             <span class="icon"><i class="mdi mdi-logout"></i></span>
             <span>Log out</span>
           </a>
@@ -47,66 +48,29 @@
           <span><b>SG200</b> FPC</span>
         </div>
       </div>
-      <div class="menu is-menu-main">
-        <p class="menu-label">General</p>
-        <ul class="menu-list">
-          <li>
-            <a href="index.html" class="is-active has-icon">
-              <span class="icon"><i class="mdi mdi-desktop-mac"></i></span>
-              <span class="menu-item-label">Dashboard</span>
-            </a>
-          </li>
-        </ul>
-        <p class="menu-label">Examples</p>
-        <ul class="menu-list">
-          <li>
-            <a href="tables.html" class="has-icon">
-              <span class="icon has-update-mark"><i class="mdi mdi-table"></i></span>
-              <span class="menu-item-label">Tables</span>
-            </a>
-          </li>
-          <li>
-            <a href="forms.html" class="has-icon">
-              <span class="icon"><i class="mdi mdi-square-edit-outline"></i></span>
-              <span class="menu-item-label">Forms</span>
-            </a>
-          </li>
-          <li>
-            <a href="profile.html" class="has-icon">
-              <span class="icon"><i class="mdi mdi-account-circle"></i></span>
-              <span class="menu-item-label">Profile</span>
-            </a>
-          </li>
-        </ul>
-        <p class="menu-label">About</p>
-        <ul class="menu-list">
-          <li>
-            <a href="about.html" class="has-icon">
-              <span class="icon"><i class="mdi mdi-help-circle"></i></span>
-              <span class="menu-item-label">About</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </aside>
-    <section class="section is-title-bar">
-      <div class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <ul>
-              <li>Admin</li>
-              <li>Dashboard</li>
-            </ul>
-          </div>
-        </div>
-        <div class="level-right">
-          <div class="level-item">
-            <div class="buttons is-right">
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+          <div class="menu is-menu-main">
+      <ul class="menu-list">
+        <li>
+          <a href="index.html" class="is-active has-icon">
+            <span class="icon"><i class="mdi mdi-desktop-mac"></i></span>
+            <span class="menu-item-label">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="settings.html" class="has-icon">
+            <span class="icon"><i class="mdi mdi-settings"></i></span>
+            <span class="menu-item-label">Settings</span>
+          </a>
+        </li>
+        <li>
+          <a href="about.html" class="has-icon">
+            <span class="icon"><i class="mdi mdi-help-circle"></i></span>
+            <span class="menu-item-label">About</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </aside>
     <section class="hero is-hero-bar">
       <div class="hero-body">
         <div class="level">
@@ -521,7 +485,7 @@
         <div class="level">
           <div class="level-left">
             <div class="level-item">
-              © 2020, JustBoil.me
+              © 2026 Taytech AS
             </div>
             <div class="level-item">
 
@@ -561,7 +525,7 @@
   <!-- Scripts below are for demo only -->
   <script type="text/javascript" src="js/main.min.js"></script>
   <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
-  <link rel="stylesheet" href="css/icons.css">
+  <link rel="stylesheet" href="icons.css">
 </body>
 
 </html>

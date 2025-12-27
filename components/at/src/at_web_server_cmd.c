@@ -700,19 +700,43 @@ static esp_err_t web_common_get_handler(httpd_req_t *req)
     char filepath[ESP_AT_WEB_FILE_PATH_MAX];
     esp_err_t err = ESP_FAIL;
     web_server_context_t *s_web_context = (web_server_context_t*) req->user_ctx;
-    strlcpy(filepath, s_web_context->base_path, sizeof(filepath));
-    strlcat(filepath, "/index.html", sizeof(filepath)); // Now, we just send the index html for the common handler
+    
+    const char *uri = req->uri;
+    // Default to login.html if root is requested
+    if (strcmp(uri, "/") == 0) {
+        uri = "/login.html";
+    }
 
-    ESP_LOGW(TAG, "open file : %s", filepath);
-    int fd = open(filepath, O_RDONLY);
-    if (fd == -1) {
-        ESP_LOGE(TAG, "Failed to open file : %s, errno =%d", filepath, errno);
-        /*Respond with 500 Internal Server Error */
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read existing file");
+    strlcpy(filepath, s_web_context->base_path, sizeof(filepath));
+    if (strlcat(filepath, uri, sizeof(filepath)) >= sizeof(filepath)) {
+        ESP_LOGE(TAG, "Path too long: %s", uri);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Path too long");
         return ESP_FAIL;
     }
 
-    httpd_resp_set_type(req, "text/html");
+    ESP_LOGI(TAG, "Serving file: %s", filepath);
+    int fd = open(filepath, O_RDONLY);
+    if (fd == -1) {
+        ESP_LOGE(TAG, "Failed to open file: %s, errno=%d", filepath, errno);
+        httpd_resp_send_404(req);
+        return ESP_FAIL;
+    }
+
+    // Set MIME Type based on extension
+    const char *ext = strrchr(filepath, '.');
+    if (ext) {
+        if (strcasecmp(ext, ".html") == 0) httpd_resp_set_type(req, "text/html");
+        else if (strcasecmp(ext, ".css") == 0) httpd_resp_set_type(req, "text/css");
+        else if (strcasecmp(ext, ".js") == 0) httpd_resp_set_type(req, "application/javascript");
+        else if (strcasecmp(ext, ".png") == 0) httpd_resp_set_type(req, "image/png");
+        else if (strcasecmp(ext, ".jpg") == 0 || strcasecmp(ext, ".jpeg") == 0) httpd_resp_set_type(req, "image/jpeg");
+        else if (strcasecmp(ext, ".ico") == 0) httpd_resp_set_type(req, "image/x-icon");
+        else if (strcasecmp(ext, ".json") == 0) httpd_resp_set_type(req, "application/json");
+        else if (strcasecmp(ext, ".svg") == 0) httpd_resp_set_type(req, "image/svg+xml");
+        else httpd_resp_set_type(req, "text/plain");
+    } else {
+        httpd_resp_set_type(req, "text/plain");
+    }
 
     char *chunk = s_web_context->scratch;
     ssize_t read_bytes;
@@ -720,16 +744,15 @@ static esp_err_t web_common_get_handler(httpd_req_t *req)
         /* Read file in chunks into the scratch buffer */
         read_bytes = read(fd, chunk, ESP_AT_WEB_SCRATCH_BUFSIZE);
         if (read_bytes == -1) {
-            ESP_LOGE(TAG, "Failed to read file : %s", filepath);
+            ESP_LOGE(TAG, "Failed to read file: %s", filepath);
         } else if (read_bytes > 0) {
             /* Send the buffer contents as HTTP response chunk */
             err = httpd_resp_send_chunk(req, chunk, read_bytes);
             if (err != ESP_OK) {
                 close(fd);
-                ESP_LOGE(TAG, "File sending failed!,err: %d,read_bytes: %d", err, read_bytes);
+                ESP_LOGE(TAG, "File sending failed!, err: %d, read_bytes: %d", err, read_bytes);
                 /* Abort sending file */
                 httpd_resp_sendstr_chunk(req, NULL);
-                /* Respond with 500 Internal Server Error */
                 httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to send file");
                 return ESP_FAIL;
             }
@@ -1793,6 +1816,7 @@ static esp_err_t start_web_server(const char *base_path, uint16_t server_port)
     config.max_uri_handlers = 8;
     config.max_open_sockets = 7; // It cannot be less than 7.
     config.server_port = server_port;
+    config.uri_match_fn = httpd_uri_match_wildcard; // Enable wildcard matching
 
 #ifdef CONFIG_AT_WEB_CAPTIVE_PORTAL_ENABLE
     /* this is an important option that isn't set up by default.*/
@@ -1810,7 +1834,7 @@ static esp_err_t start_web_server(const char *base_path, uint16_t server_port)
         {"/getaprecord", HTTP_GET, ap_record_get_handler, s_web_context},
         {"/getotainfo", HTTP_GET, ota_info_get_handler, s_web_context},
         {"/setotadata", HTTP_POST, ota_data_post_handler, s_web_context},
-        {"/", HTTP_GET, web_common_get_handler, s_web_context},
+        {"/*", HTTP_GET, web_common_get_handler, s_web_context}, // Match everything else
     };
 
     for (int i = 0; i < sizeof(httpd_uri_array) / sizeof(httpd_uri_t); i++) {
