@@ -1,0 +1,76 @@
+Activating ESP-IDF 5.4
+Setting IDF_PATH to 'C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf'.
+* Checking python version ... 3.13.5
+* Checking python dependencies ... OK
+* Deactivating the current ESP-IDF environment (if any) ... OK
+* Establishing a new ESP-IDF environment ... OK
+* Identifying shell ... cmd.exe
+* Detecting outdated tools in system ... Found tools that are not used by active ESP-IDF version.
+For removing old versions of amazon-corretto-11-x64-windows-jdk, ccache, cmake, esp-rom-elfs, esp32ulp-elf, espressif-ide, idf-driver, ninja, openocd-esp32, riscv32-esp-elf, riscv32-esp-elf-gdb, xtensa-esp-elf, xtensa-esp-elf-gdb, xtensa-esp32-elf use 
+command 'python.exe C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\tools\idf_tools.py uninstall'
+To free up even more space, remove installation packages of those tools.
+Use option python.exe C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\tools\idf_tools.py uninstall --remove-archives.
+
+Done! You can now compile ESP-IDF projects.
+Go to the project directory and run:
+
+  idf.py build
+
+Platform name:ESP32	Module name:WROOM-32	Silence:0
+submodules check completed for updates.
+Ready to set up environment variables..
+sys.platform is win32
+PATH is C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-14.2.0_20241119\xtensa-esp-elf\bin;C:\Espressif\tools\riscv32-esp-elf\esp-14.2.0_20241119\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;%PATH%;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\espcoredump;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\partition_table;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\app_update;C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-14.2.0_20241119\xtensa-esp-elf\bin;C:\Espressif\tools\riscv32-esp-elf\esp-14.2.0_20241119\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\espcoredump;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\partition_table;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\app_update;C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-14.2.0_20241119\xtensa-esp-elf\bin;C:\Espressif\tools\riscv32-esp-elf\esp-14.2.0_20241119\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\espcoredump;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\partition_table;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\app_update;C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-14.2.0_20241119\xtensa-esp-elf\bin;C:\Espressif\tools\riscv32-esp-elf\esp-14.2.0_20241119\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\espcoredump;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\partition_table;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\app_update;C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-14.2.0_20241119\xtensa-esp-elf\bin;C:\Espressif\tools\riscv32-esp-elf\esp-14.2.0_20241119\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\espcoredump;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\partition_table;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\app_update;C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-14.2.0_20241119\xtensa-esp-elf\bin;C:\Espressif\tools\riscv32-esp-elf\esp-14.2.0_20241119\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\espcoredump;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\partition_table;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\app_update;C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-14.2.0_20241119\xtensa-esp-elf\bin;C:\Espressif\tools\riscv32-esp-elf\esp-14.2.0_20241119\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\espcoredump;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\partition_table;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\components\app_update;C:\Espressif\tools\xtensa-esp-elf-gdb\14.2_20240403\xtensa-esp-elf-gdb\bin;C:\Espressif\tools\riscv32-esp-elf-gdb\14.2_20240403\riscv32-esp-elf-gdb\bin;C:\Espressif\tools\xtensa-esp-elf\esp-14.2.0_20241119\xtensa-esp-elf\bin;C:\Espressif\tools\riscv32-esp-elf\esp-14.2.0_20241119\riscv32-esp-elf\bin;C:\Espressif\tools\esp32ulp-elf\2.38_20240113\esp32ulp-elf\bin;C:\Espressif\tools\cmake\3.30.2\bin;C:\Espressif\tools\openocd-esp32\v0.12.0-esp32-20250422\openocd-esp32\bin;C:\Espressif\tools\ninja\1.12.1\;C:\Espressif\tools\idf-exe\1.0.3\;C:\Espressif\tools\ccache\4.10.2\ccache-4.10.2-windows-x86_64;C:\Espressif\tools\dfu-util\0.11\dfu-util-0.11-win64;C:\Espressif\python_env\idf5.4_py3.13_env\Scripts;C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\esp-idf\tools;C:\Program Files\PowerShell\7;C:\Python313\Scripts\;C:\Python313\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility;C:\Program Files\dotnet\;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\Bin\;C:\Program Files\IVI Foundation\VISA\Win64\Bin\;C:\Program Files\usbipd-win\;C:\Program Files\Git\cmd;C:\Program Files\PuTTY\;C:\Program Files (x86)\Common Files\Siemens\ACE\bin;C:\Program Files (x86)\Common Files\Siemens\ACE;C:\Program Files (x86)\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\130\Tools\Binn\;C:\Program Files\Microsoft SQL Server\130\DTS\Binn\;C:\Program Files (x86)\Common Files\Siemens\ACE\Interfaces;C:\Program Files (x86)\Common Files\Siemens\;C:\Program Files (x86)\Common Files\Siemens\Interfaces;C:\Users\baslan\AppData\Local\nvm;C:\nvm4w\nodejs;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\Rust stable MSVC 1.89\bin;C:\Program Files\PowerShell\7\;C:\Program Files\cursor\resources\app\bin;C:\Program Files\GitHub CLI\;C:\Users\baslan\.cargo\bin;c:\Users\baslan\AppData\Local\Programs\Trae\bin;C:\Users\baslan\AppData\Local\Microsoft\WindowsApps;C:\SiliconLabs\SimplicityStudio\v5\developer\adapter_packs\commander;C:\Users\baslan\AppData\Local\GitHubDesktop\bin;C:\Users\baslan\.dotnet\tools;C:\Users\baslan\AppData\Local\nvm;C:\nvm4w\nodejs;C:\Users\baslan\AppData\Local\Microsoft\WinGet\Links;C:\Users\baslan\AppData\Roaming\npm;C:\Users\baslan\AppData\Local\Programs\Microsoft VS Code Insiders\bin;C:\Users\baslan\AppData\Local\Programs\Antigravity\bin
+IDF_PYTHON_ENV_PATH is C:\Espressif\python_env\idf5.4_py3.13_env
+Executing action: all (aliases: build)
+Running ninja in directory C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\build
+Executing "ninja all"...
+[1/14] Running utility command for at_net_debug
+
+[2/14] Performing build step for 'bootloader'
+
+FAILED: bootloader-prefix/src/bootloader-stamp/bootloader-build bootloader/bootloader.elf bootloader/bootloader.bin bootloader/bootloader.map C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/bootloader-prefix/src/bootloader-stamp/bootloader-build C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/bootloader/bootloader.elf C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/bootloader/bootloader.bin C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/bootloader/bootloader.map 
+
+C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\build\bootloader && C:\Espressif\tools\cmake\3.30.2\bin\cmake.exe --build ."
+[1/2] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\build\bootloader\esp-idf\esptool_py && C:\Espressif\python_env\idf5.4_py3.13_env\Scripts\python.exe C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/bootloader/bootloader.bin"
+
+FAILED: esp-idf/esptool_py/CMakeFiles/bootloader_check_size C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size 
+
+C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\build\bootloader\esp-idf\esptool_py && C:\Espressif\python_env\idf5.4_py3.13_env\Scripts\python.exe C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/bootloader/bootloader.bin"
+
+Error: Bootloader binary size 0xc000 bytes is too large for partition table offset 0x8000. Bootloader binary can be maximum 0x7000 (28672) bytes unless the partition table offset is increased in the Partition Table section of the project configuration menu.
+
+
+[2/2] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\build\bootloader\esp-idf\esptool_py && C:\Espressif\python_env\idf5.4_py3.13_env\Scripts\python.exe C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/bootloader/bootloader.bin"
+
+FAILED: esp-idf/esptool_py/CMakeFiles/bootloader_check_size_signed C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size_signed 
+
+C:\WINDOWS\system32\cmd.exe /C "cd /D C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\build\bootloader\esp-idf\esptool_py && C:\Espressif\python_env\idf5.4_py3.13_env\Scripts\python.exe C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/bootloader/bootloader.bin"
+
+Error: Bootloader binary size 0xc000 bytes is too large for partition table offset 0x8000. Bootloader binary can be maximum 0x7000 (28672) bytes unless the partition table offset is increased in the Partition Table section of the project configuration menu.
+
+
+
+ninja: build stopped: subcommand failed.
+
+
+[3/14] Linking C static library esp-idf\at\libat.a
+
+[4/14] Running utility command for customized_bin
+
+
+
+
+Creating NVS binary with version: V2 - Multipage Blob Support Enabled
+
+
+
+
+
+Created NVS binary: ===> C:/Work/sw/SG200_HMI_FW_ESP32/ESP32_AT/esp-at/build/customized_partitions\mfg_nvs.bin
+
+
+ninja: build stopped: subcommand failed.
+
+ninja failed with exit code 1, output of the command is in the C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\build\log\idf_py_stderr_output_22964 and C:\Work\sw\SG200_HMI_FW_ESP32\ESP32_AT\esp-at\build\log\idf_py_stdout_output_22964
+A fatal error occurred: idf.py build failed

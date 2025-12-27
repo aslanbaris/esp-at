@@ -1,17 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<style>
-body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f0f0f0; }
-h1 { color: #333; }
-.card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-block; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32-AT Web Server</title>
+    <style>
+        :root {
+            --primary: #007bff;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .info {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 0.9em;
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
 </head>
+
 <body>
-<div class="card">
-    <h1>ESP32 FATFS Web Server</h1>
-    <p>This page is served from the Validated FATFS Image!</p>
-    <p>Recovery Successful.</p>
-</div>
+    <div class="container">
+        <h1>ESP32 Connected</h1>
+        <p>Welcome to your embedded web server.</p>
+
+        <div class="status-badge">
+            System Operational
+        </div>
+
+        <div class="info">
+            <strong>Device Info:</strong><br>
+            Module: ESP32-WROOM-32<br>
+            Mode: SoftAP / Station<br>
+            Firmware: Custom ESP-AT
+        </div>
+    </div>
 </body>
+
 </html>
