@@ -34,6 +34,11 @@ def main():
         print(f"Failed to open port: {e}")
         return
 
+    # Reset to clear state
+    print("Resetting device...")
+    send_cmd(ser, "AT+RST", timeout=5)
+    time.sleep(3) # Wait for boot
+
     # Check AT
     send_cmd(ser, "AT")
     

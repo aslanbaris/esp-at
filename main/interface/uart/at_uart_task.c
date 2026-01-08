@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sdkconfig.h"
+#include "esp_log.h"
 
 #ifdef CONFIG_AT_BASE_ON_UART
 #include "soc/io_mux_reg.h"
@@ -37,6 +38,9 @@ static int32_t at_uart_write_data(uint8_t *data, int32_t len)
     uint32_t length = 0;
 
     length = uart_write_bytes(g_at_cmd_port, (char *)data, len);
+    if (length > 0) {
+        printf("I (%u) at-uart: TX(%d): %.*s\n", esp_log_timestamp(), length, length, (char *)data);
+    }
     return length;
 }
 
@@ -62,13 +66,20 @@ static int32_t at_uart_read_data(uint8_t *buffer, int32_t len)
         uint8_t *data = (uint8_t *)malloc(len);
         if (data) {
             len = uart_read_bytes(g_at_cmd_port, data, len, portTICK_PERIOD_MS);
+            if (len > 0) {
+                printf("I (%u) at-uart: RX(%d): %.*s\n", esp_log_timestamp(), len, len, (char *)data);
+            }
             free(data);
             return len;
         } else {
             return -1;
         }
     } else {
-        return uart_read_bytes(g_at_cmd_port, buffer, len, portTICK_PERIOD_MS);
+        int32_t read_len = uart_read_bytes(g_at_cmd_port, buffer, len, portTICK_PERIOD_MS);
+        if (read_len > 0) {
+             printf("I (%u) at-uart: RX(%d): %.*s\n", esp_log_timestamp(), read_len, read_len, (char *)buffer);
+        }
+        return read_len;
     }
 }
 

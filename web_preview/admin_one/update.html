@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" class="has-aside-left has-aside-mobile-transition has-navbar-fixed-top has-aside-expanded">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SG200 FPC Update</title>
+
+  <!-- Bulma is included -->
+  <script src="js/auth.js"></script>
+  <link rel="stylesheet" href="main.css">
+
+  <!-- Fonts -->
+
+
+</head>
+
+<body>
+  <div id="app">
+    <nav id="navbar-main" class="navbar is-fixed-top">
+      <div class="navbar-brand">
+        <a class="navbar-item is-hidden-desktop jb-aside-mobile-toggle">
+          <span class="icon"><i class="mdi mdi-forwardburger mdi-24px"></i></span>
+        </a>
+
+      </div>
+      <div class="navbar-brand is-right">
+        <a class="navbar-item is-hidden-desktop jb-navbar-menu-toggle" data-target="navbar-menu">
+          <span class="icon"><i class="mdi mdi-dots-vertical"></i></span>
+        </a>
+      </div>
+      <div class="navbar-menu fadeIn animated faster" id="navbar-menu">
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <span>John Doe</span>
+          </div>
+          <a title="Log out" class="navbar-item is-desktop-icon-only" onclick="logout(); return false;" href="#">
+            <span class="icon"><i class="mdi mdi-logout"></i></span>
+            <span>Log out</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+    <aside class="aside is-placed-left is-expanded">
+      <div class="aside-tools">
+        <div class="aside-tools-label">
+          <img src="img/tay.svg" alt="Taytech" style="max-height: 24px; margin-right: 0.5rem; vertical-align: middle;">
+          <span><b>SG200</b> FPC</span>
+        </div>
+      </div>
+      <div class="menu is-menu-main">
+        <ul class="menu-list">
+          <li>
+            <a href="index.html" class="has-icon">
+              <span class="icon"><i class="mdi mdi-desktop-mac"></i></span>
+              <span class="menu-item-label">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="settings.html" class="has-icon">
+              <span class="icon"><i class="mdi mdi-settings"></i></span>
+              <span class="menu-item-label">Settings</span>
+            </a>
+          </li>
+          <li>
+            <a href="update.html" class="is-active has-icon">
+              <span class="icon"><i class="mdi mdi-upload"></i></span>
+              <span class="menu-item-label">Update</span>
+            </a>
+          </li>
+          <li>
+            <a href="about.html" class="has-icon">
+              <span class="icon"><i class="mdi mdi-help-circle"></i></span>
+              <span class="menu-item-label">About</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </aside>
+    <section class="hero is-hero-bar">
+      <div class="hero-body">
+        <div class="level">
+          <div class="level-left">
+            <div class="level-item">
+              <h1 class="title">
+                Update
+              </h1>
+            </div>
+          </div>
+          <div class="level-right" style="display: none;">
+            <div class="level-item"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section is-main-section">
+      <div class="tile is-ancestor">
+        <!-- New Left Card: MCU Update -->
+        <div class="tile is-parent">
+          <div class="card tile is-child">
+            <header class="card-header">
+              <p class="card-header-title">
+                <span class="icon"><i class="mdi mdi-chip default"></i></span>
+                MCU Update
+              </p>
+            </header>
+            <div class="card-content">
+              <form onsubmit="return false;">
+                <div class="field">
+                  <label class="label">Firmware File (.bin)</label>
+                  <p class="help" style="margin-bottom: 0.5rem;">Select firmware file to update the main MCU.</p>
+                  <div class="control">
+                    <div class="file has-name is-fullwidth">
+                      <label class="file-label">
+                        <input class="file-input" type="file" id="mcu_file" accept=".bin"
+                          onchange="fileChange(this, 'mcu_file_display')">
+                        <span class="file-cta">
+                          <span class="file-icon">
+                            <i class="mdi mdi-upload"></i>
+                          </span>
+                          <span class="file-label">
+                            Choose a file…
+                          </span>
+                        </span>
+                        <span class="file-name" id="mcu_file_display">
+                          No file selected
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="control">
+                    <progress class="progress is-primary is-hidden" id="mcu_progress" value="0" max="100">0%</progress>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="control">
+                    <button class="button is-primary" onclick="startMCUUpdate()" id="btn_mcu_upgrade">Start MCU
+                      Update</button>
+                  </div>
+                </div>
+                <p class="help is-danger" id="mcu_error_msg" style="display: none;"></p>
+                <p class="help is-success" id="mcu_success_msg" style="display: none;"></p>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Right Card: OTA Upgrade -->
+        <div class="tile is-parent">
+          <div class="card tile is-child">
+            <header class="card-header">
+              <p class="card-header-title">
+                <span class="icon"><i class="mdi mdi-cloud-upload default"></i></span>
+                OTA Upgrade
+              </p>
+            </header>
+            <div class="card-content">
+              <form onsubmit="return false;">
+                <div class="field">
+                  <label class="label">Partition & Version</label>
+                  <div class="field is-grouped">
+                    <div class="control">
+                      <div class="select">
+                        <select id="partition_select">
+                          <option value="" disabled selected>Select Partition</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="control is-expanded" style="display: flex; align-items: center; flex-wrap: wrap;">
+                      <span class="tag is-info is-light" style="margin-right: 5px;">FW: <b
+                          id="fw_version">Loading...</b></span>
+                      <span class="tag is-info is-light">AT: <b id="at_version">Loading...</b></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Firmware File (.bin)</label>
+                  <div class="control">
+                    <div class="file has-name is-fullwidth">
+                      <label class="file-label">
+                        <input class="file-input" type="file" id="ota_file" accept=".bin"
+                          onchange="fileChange(this, 'ota_file_display')">
+                        <span class="file-cta">
+                          <span class="file-icon">
+                            <i class="mdi mdi-upload"></i>
+                          </span>
+                          <span class="file-label">
+                            Choose a file…
+                          </span>
+                        </span>
+                        <span class="file-name" id="ota_file_display">
+                          No file selected
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="control">
+                    <progress class="progress is-primary is-hidden" id="ota_progress" value="0" max="100">0%</progress>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="control">
+                    <button class="button is-primary" onclick="startOTA()" id="btn_upgrade">Start OTA Upgrade</button>
+                  </div>
+                </div>
+                <p class="help is-danger" id="error_msg" style="display: none;"></p>
+                <p class="help is-success" id="success_msg" style="display: none;"></p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // OTA Logic
+      document.addEventListener('DOMContentLoaded', function () {
+        getOTInfo();
+      });
+
+      function getOTInfo() {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", "/getotainfo", true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200 || xhr.status === 304) {
+              try {
+                const resp = JSON.parse(xhr.responseText);
+                if (resp.state === 0) {
+                  document.getElementById('fw_version').textContent = resp.fw_version;
+                  document.getElementById('at_version').textContent = resp.at_core_version;
+
+                  const select = document.getElementById('partition_select');
+                  select.innerHTML = '<option value="" disabled selected>Select Partition</option>'; // Reset
+                  const partitions = resp.partitions || [];
+                  partitions.forEach(function (part) {
+                    const option = document.createElement('option');
+                    option.value = part;
+                    option.textContent = part;
+                    select.appendChild(option);
+                  });
+                } else {
+                  showError("Failed to get version info (State: " + resp.state + ")", 'error_msg', 'success_msg');
+                }
+              } catch (e) {
+                showError("Failed to parse OTA info: " + e.message, 'error_msg', 'success_msg');
+              }
+            } else {
+              showError("Failed to fetch OTA info (Status: " + xhr.status + ")", 'error_msg', 'success_msg');
+            }
+          }
+        };
+        xhr.send();
+      }
+
+      function fileChange(input, displayId) {
+        const fileNameDisplay = document.getElementById(displayId);
+        if (input.files && input.files.length > 0) {
+          const file = input.files[0];
+          fileNameDisplay.textContent = file.name;
+
+          if (!file.name.toLowerCase().endsWith('.bin')) {
+            // Determine which error message box to use based on input ID
+            const errorId = (input.id === 'mcu_file') ? 'mcu_error_msg' : 'error_msg';
+            const successId = (input.id === 'mcu_file') ? 'mcu_success_msg' : 'success_msg';
+
+            showError("Please select a .bin file", errorId, successId);
+            input.value = ""; // Clear input
+            fileNameDisplay.textContent = "No file selected";
+          } else {
+            const errorId = (input.id === 'mcu_file') ? 'mcu_error_msg' : 'error_msg';
+            hideError(errorId);
+          }
+        } else {
+          fileNameDisplay.textContent = "No file selected";
+        }
+      }
+
+      function startOTA() {
+        const partition = document.getElementById('partition_select').value;
+        const fileInput = document.getElementById('ota_file');
+
+        if (!partition) {
+          showError("Please select a partition.", 'error_msg', 'success_msg');
+          return;
+        }
+        if (!fileInput.files || fileInput.files.length === 0) {
+          showError("Please select a firmware file.", 'error_msg', 'success_msg');
+          return;
+        }
+
+        performUpdate(fileInput.files[0], partition, 'btn_upgrade', 'ota_progress', 'error_msg', 'success_msg');
+      }
+
+      function startMCUUpdate() {
+        // MCU Update specific logic. Assuming "mcu" as partition/object name for now.
+        const fileInput = document.getElementById('mcu_file');
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+          showError("Please select a firmware file.", 'mcu_error_msg', 'mcu_success_msg');
+          return;
+        }
+
+        // Warning: This object name 'mcu' must be handled by the backend!
+        performUpdate(fileInput.files[0], 'mcu', 'btn_mcu_upgrade', 'mcu_progress', 'mcu_error_msg', 'mcu_success_msg');
+      }
+
+      function performUpdate(file, partitionName, btnId, progressId, errorId, successId) {
+        const btn = document.getElementById(btnId);
+        const progress = document.getElementById(progressId);
+
+        btn.classList.add('is-loading');
+        btn.disabled = true;
+        progress.classList.remove('is-hidden');
+        progress.value = 0;
+        hideError(errorId);
+        hideSuccess(successId);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/setotadata", true);
+        xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        xhr.setRequestHeader("Object", partitionName);
+
+        xhr.upload.onprogress = function (e) {
+          if (e.lengthComputable) {
+            const percentComplete = (e.loaded / e.total) * 100;
+            progress.value = percentComplete;
+          }
+        };
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            btn.classList.remove('is-loading');
+            btn.disabled = false;
+            progress.classList.add('is-hidden');
+
+            if (xhr.status === 200 || xhr.status === 304) {
+              try {
+                const resp = JSON.parse(xhr.responseText);
+                if (resp.state === 0) {
+                  showSuccess("Update Successful!", successId, errorId);
+                } else {
+                  showError("Update Failed (State: " + resp.state + ")", errorId, successId);
+                }
+              } catch (e) {
+                showError("Invalid response from server.", errorId, successId);
+              }
+            } else {
+              showError("Upload Failed (Status: " + xhr.status + ")", errorId, successId);
+            }
+          }
+        };
+
+        xhr.send(file);
+      }
+
+      function showError(msg, errorId, successId) {
+        const el = document.getElementById(errorId);
+        el.textContent = msg;
+        el.style.display = 'block';
+        if (successId) document.getElementById(successId).style.display = 'none';
+      }
+
+      function hideError(errorId) {
+        document.getElementById(errorId).style.display = 'none';
+      }
+
+      function showSuccess(msg, successId, errorId) {
+        const el = document.getElementById(successId);
+        el.textContent = msg;
+        el.style.display = 'block';
+        if (errorId) document.getElementById(errorId).style.display = 'none';
+      }
+
+      function hideSuccess(successId) {
+        document.getElementById(successId).style.display = 'none';
+      }
+    </script>
+
+    <footer class="footer">
+      <div class="container-fluid">
+        <div class="level">
+          <div class="level-left">
+            <div class="level-item">
+              © 2026 Taytech AS
+            </div>
+            <div class="level-item">
+
+            </div>
+          </div>
+          <div class="level-right">
+            <div class="level-item">
+              <div class="logo">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <div id="sample-modal" class="modal">
+      <div class="modal-background jb-modal-close"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Confirm action</p>
+          <button class="delete jb-modal-close" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+          <p>This will permanently delete <b>Some Object</b></p>
+          <p>This is sample modal</p>
+        </section>
+        <footer class="modal-card-foot">
+          <button class="button jb-modal-close">Cancel</button>
+          <button class="button is-danger jb-modal-close">Delete</button>
+        </footer>
+      </div>
+      <button class="modal-close is-large jb-modal-close" aria-label="close"></button>
+    </div>
+  </div>
+
+  <!-- Scripts below are for demo only -->
+  <script type="text/javascript" src="js/main.min.js"></script>
+
+  <!-- Icons below are for demo only. Feel free to use any icon pack. Docs: https://bulma.io/documentation/elements/icon/ -->
+  <link rel="stylesheet" href="icons.css">
+</body>
+
+</html>

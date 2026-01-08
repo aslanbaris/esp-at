@@ -17,7 +17,7 @@ def send_at_cmd(ser, cmd, timeout=3):
     return buffer
 
 def main():
-    port = "COM18"
+    port = "COM13"
     baud = 115200
     
     try:

@@ -1,4 +1,7 @@
 @echo off
+if not exist "build" mkdir build
+echo {"platform": "PLATFORM_ESP32", "module": "WROOM-32", "description": "", "silence": 0} > build\module_info.json
+
 echo ========================================================
 echo Building ESP-AT Firmware (via build.py)...
 echo ========================================================

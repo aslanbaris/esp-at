@@ -101,3 +101,7 @@ endif()
 if (CONFIG_AT_USER_COMMAND_SUPPORT)
     target_link_libraries(${COMPONENT_LIB} INTERFACE "-u esp_at_user_cmd_regist")
 endif()
+
+if (CONFIG_AT_MODBUSTCP_COMMAND_SUPPORT)
+    target_link_libraries(${COMPONENT_LIB} INTERFACE "-u esp_at_modbus_tcp_cmd_regist")
+endif()

@@ -283,6 +283,15 @@ config AT_FS_COMMAND_SUPPORT
     default "n"
     depends on AT_ENABLE
 
+config AT_MODBUSTCP_COMMAND_SUPPORT
+    bool "AT Modbus TCP Bridge command support."
+    default "y"
+    depends on AT_ENABLE
+    help
+        Enable AT+MODBUSTCP command for transparent TCP-UART bridge.
+        This allows a Modbus TCP master to communicate with an MCU
+        running a Modbus RTU/ASCII server via the AT UART port.
+
 config AT_DRIVER_COMMAND_SUPPORT
     bool "AT driver command support."
     default "n"

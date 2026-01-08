@@ -33,6 +33,7 @@
 #include "esp_mac.h"
 
 #include "esp_at.h"
+#include "at_mcu_update.h"
 
 #ifdef CONFIG_AT_WEB_SERVER_SUPPORT
 #include "esp_http_server.h"
@@ -1774,6 +1775,66 @@ static esp_err_t ota_data_post_handler(httpd_req_t *req)
 
         if (strncmp(obj_name, ESP_AT_UPGRADE_PARTITION_NAME, strlen(ESP_AT_UPGRADE_PARTITION_NAME)) == 0) {
             err = ota_upgrade(req);
+        } else if (strncmp(obj_name, "mcu", 3) == 0) {
+            // Handle MCU Update
+            ESP_LOGI(TAG, "MCU Firmware Update Requested");
+            
+            // Re-use OTA logic but redirect write? 
+            // The ota_upgrade function uses esp_ota_ops which targets app partitions.
+            // We need a custom handler similar to at_customize_partition_upgrade but for raw data.
+            // For now, let's implement a simplified inline handler or call a helper.
+            // But wait, ota_upgrade reads from HTTP stream. We need to consume the stream.
+            
+            // Let's implement a specific handler for MCU fw that reads the stream and writes to partition.
+            // We can accept that here.
+             
+            // Read loop
+            char *buf = malloc(ESP_AT_WEB_SCRATCH_BUFSIZE);
+            if (!buf) {
+                free(obj_name);
+                return ESP_ERR_NO_MEM;
+            }
+
+            int received;
+            int remaining = req->content_len;
+            uint32_t offset = 0;
+
+            at_mcu_update_init(); // Ensure GPIOs are ready (or init here)
+            
+            while (remaining > 0) {
+                received = httpd_req_recv(req, buf, MIN(remaining, ESP_AT_WEB_SCRATCH_BUFSIZE));
+                if (received <= 0) {
+                    if (received == HTTPD_SOCK_ERR_TIMEOUT) {
+                        continue;
+                    }
+                    free(buf);
+                    free(obj_name);
+                    return ESP_FAIL;
+                }
+
+                esp_err_t w_err = at_mcu_fw_write(buf, received, offset);
+                if (w_err != ESP_OK) {
+                    ESP_LOGE(TAG, "MCU FW Write Failed: %d", w_err);
+                    free(buf);
+                    free(obj_name);
+                    return ESP_FAIL;
+                }
+                
+                offset += received;
+                remaining -= received;
+            }
+            free(buf);
+            
+            // Update finished successfully. 
+            // Trigger phase 2 (flashing) asynchronously?
+            // For now, just return success.
+            // Ideally we should start a task here to do the flashing so we can return HTTP 200 first.
+            // But at_mcu_update_start() is blocking.
+            // Let's spawn a task.
+            xTaskCreate((TaskFunction_t)at_mcu_update_start, "mcu_update", 4096, NULL, 5, NULL);
+            
+            err = ESP_OK;
+
         } else {
             err = at_customize_partition_upgrade(req, obj_name);
         }
@@ -1805,6 +1866,150 @@ static esp_err_t http_common_error_handler(httpd_req_t *req, httpd_err_code_t er
 }
 #endif
 
+#define UPDATE_PKG_MAGIC 0x55504454
+
+typedef struct __attribute__((packed)) {
+    uint32_t magic;
+    uint32_t count;
+} update_pkg_header_t;
+
+typedef struct __attribute__((packed)) {
+    char label[16];
+    uint32_t size;
+    uint32_t offset;
+    uint32_t type; // 0=APP, 1=DATA
+} update_pkg_item_t;
+
+static int stream_read(httpd_req_t *req, char *buf, int len) {
+    int received = 0;
+    int ret = 0;
+    while(received < len) {
+        ret = httpd_req_recv(req, buf + received, len - received);
+        if (ret <= 0) return ret;
+        received += ret;
+    }
+    return received;
+}
+
+static esp_err_t update_packet_handler(httpd_req_t *req)
+{
+    char *buf = ((web_server_context_t*)(req->user_ctx))->scratch;
+    update_pkg_header_t pkg_hdr;
+    update_pkg_item_t item_hdr;
+    esp_err_t err = ESP_FAIL;
+    const esp_partition_t *target_part = NULL;
+    const esp_partition_t *app_part = NULL;
+    esp_ota_handle_t ota_handle = 0;
+    
+    // 1. Read Global Header
+    if (stream_read(req, (char*)&pkg_hdr, sizeof(pkg_hdr)) != sizeof(pkg_hdr)) {
+        ESP_LOGE(TAG, "Failed to read update header");
+        goto err_handler;
+    }
+    
+    if (pkg_hdr.magic != UPDATE_PKG_MAGIC) {
+        ESP_LOGE(TAG, "Invalid Magic: 0x%x", pkg_hdr.magic);
+        goto err_handler;
+    }
+    
+    ESP_LOGI(TAG, "Update Package: %d items", pkg_hdr.count);
+    
+    // 2. Process Items
+    for (int i = 0; i < pkg_hdr.count; i++) {
+        // Read Item Header
+        if (stream_read(req, (char*)&item_hdr, sizeof(item_hdr)) != sizeof(item_hdr)) {
+             ESP_LOGE(TAG, "Failed to read item header %d", i);
+             goto err_handler;
+        }
+        
+        ESP_LOGI(TAG, "Item %d: %s (%d bytes, type %d)", i, item_hdr.label, item_hdr.size, item_hdr.type);
+        
+        if (item_hdr.type == 0) { // APP
+            target_part = at_web_get_ota_update_partition();
+            if (!target_part) goto err_handler;
+            err = esp_ota_begin(target_part, item_hdr.size, &ota_handle);
+            if (err != ESP_OK) {
+                ESP_LOGE(TAG, "OTA Begin failed");
+                goto err_handler;
+            }
+            app_part = target_part; // Store for later activation
+        } else { // DATA
+            // Try Custom Partition First
+            target_part = esp_at_custom_partition_find(0x0, 0x0, item_hdr.label);
+            if (!target_part) {
+                // Try Standard Partition
+                target_part = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, item_hdr.label);
+            }
+            
+            if (!target_part) {
+                ESP_LOGE(TAG, "Partition %s not found", item_hdr.label);
+                goto err_handler;
+            }
+            
+            // Erase
+             uint32_t erase_size = (item_hdr.size + 4095) & ~4095; // Align to 4K
+             if (erase_size > target_part->size) erase_size = target_part->size;
+             
+            err = esp_partition_erase_range(target_part, 0, erase_size);
+            if (err != ESP_OK) {
+                ESP_LOGE(TAG, "Erase failed for %s", item_hdr.label);
+                goto err_handler;
+            }
+        }
+        
+        // Stream Write
+        uint32_t remain = item_hdr.size;
+        uint32_t written = 0;
+        int chunk_size;
+        int r_len;
+        
+        while (remain > 0) {
+            chunk_size = MIN(remain, ESP_AT_WEB_SCRATCH_BUFSIZE);
+            r_len = httpd_req_recv(req, buf, chunk_size);
+            if (r_len <= 0) { // Should match stream logic, but here we handle chunks
+                 if (r_len == HTTPD_SOCK_ERR_TIMEOUT) continue;
+                 goto err_handler;
+            }
+            
+            if (item_hdr.type == 0) {
+                 err = esp_ota_write(ota_handle, buf, r_len);
+            } else {
+                 err = esp_partition_write(target_part, written, buf, r_len);
+            }
+            
+            if (err != ESP_OK) {
+                ESP_LOGE(TAG, "Write failed");
+                goto err_handler;
+            }
+            
+            remain -= r_len;
+            written += r_len;
+        }
+        
+        if (item_hdr.type == 0) {
+             err = esp_ota_end(ota_handle);
+             if (err != ESP_OK) {
+                 ESP_LOGE(TAG, "OTA End Failed");
+                 goto err_handler;
+             }
+        }
+    }
+    
+    // Activate App if updated
+    if (app_part) {
+         esp_ota_set_boot_partition(app_part);
+    }
+    
+    at_web_response_ok(req);
+    esp_at_port_active_write_data((uint8_t*)s_ota_receive_success_response, strlen(s_ota_receive_success_response));
+    return ESP_OK;
+
+err_handler:
+    at_web_response_error(req, HTTPD_500);
+    esp_at_port_active_write_data((uint8_t*)s_ota_receive_fail_response, strlen(s_ota_receive_fail_response));
+    return ESP_FAIL;
+}
+
 static esp_err_t start_web_server(const char *base_path, uint16_t server_port)
 {
     ESP_AT_WEB_SERVER_CHECK(base_path, "wrong base path", err);
@@ -1813,7 +2018,7 @@ static esp_err_t start_web_server(const char *base_path, uint16_t server_port)
     strlcpy(s_web_context->base_path, base_path, sizeof(s_web_context->base_path));
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 8;
+    config.max_uri_handlers = 12;
     config.max_open_sockets = 7; // It cannot be less than 7.
     config.server_port = server_port;
     config.uri_match_fn = httpd_uri_match_wildcard; // Enable wildcard matching
@@ -1834,6 +2039,7 @@ static esp_err_t start_web_server(const char *base_path, uint16_t server_port)
         {"/getaprecord", HTTP_GET, ap_record_get_handler, s_web_context},
         {"/getotainfo", HTTP_GET, ota_info_get_handler, s_web_context},
         {"/setotadata", HTTP_POST, ota_data_post_handler, s_web_context},
+        {"/update_packet", HTTP_POST, update_packet_handler, s_web_context},
         {"/*", HTTP_GET, web_common_get_handler, s_web_context}, // Match everything else
     };
 
