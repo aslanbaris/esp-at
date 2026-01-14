@@ -1634,6 +1634,11 @@ static esp_err_t partition_upgrade(httpd_req_t *req, char *buf, const int total_
 
     const esp_partition_t *at_custom_partition = esp_at_custom_partition_find(0x0, 0x0, partition_name);
     if (at_custom_partition == NULL) {
+        // Fallback: Try to find standard data partition by label
+        at_custom_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, partition_name);
+    }
+
+    if (at_custom_partition == NULL) {
         ESP_LOGE(TAG, "no custom partition: %s", partition_name);
         return ESP_FAIL;
     }
@@ -1789,59 +1794,11 @@ static esp_err_t ota_data_post_handler(httpd_req_t *req)
             // We can accept that here.
              
             // Read loop
-            char *buf = malloc(ESP_AT_WEB_SCRATCH_BUFSIZE);
-            if (!buf) {
-                free(obj_name);
-                return ESP_ERR_NO_MEM;
-            }
-
-            int received;
-            int remaining = req->content_len;
-            uint32_t offset = 0;
-
-            at_mcu_update_init(); // Ensure GPIOs are ready (or init here)
             
-            while (remaining > 0) {
-                received = httpd_req_recv(req, buf, MIN(remaining, ESP_AT_WEB_SCRATCH_BUFSIZE));
-                if (received <= 0) {
-                    if (received == HTTPD_SOCK_ERR_TIMEOUT) {
-                        continue;
-                    }
-                    free(buf);
-                    free(obj_name);
-                    return ESP_FAIL;
-                }
-
-                esp_err_t w_err = at_mcu_fw_write(buf, received, offset);
-                if (w_err != ESP_OK) {
-                    ESP_LOGE(TAG, "MCU FW Write Failed: %d", w_err);
-                    free(buf);
-                    free(obj_name);
-                    return ESP_FAIL;
-                }
-                
-                offset += received;
-                remaining -= received;
-            }
-            free(buf);
-            
-            // Update finished successfully. 
-            // Trigger phase 2 (flashing) asynchronously?
-            // For now, just return success.
-            // Ideally we should start a task here to do the flashing so we can return HTTP 200 first.
-            // But at_mcu_update_start() is blocking.
-            // Let's spawn a task.
-            xTaskCreate((TaskFunction_t)at_mcu_update_start, "mcu_update", 4096, NULL, 5, NULL);
-            
-            err = ESP_OK;
-
-        } else {
             err = at_customize_partition_upgrade(req, obj_name);
         }
-
         free(obj_name);
     }
-
     return err;
 }
 
@@ -2010,6 +1967,57 @@ err_handler:
     return ESP_FAIL;
 }
 
+static esp_err_t update_mcu_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "Web triggered MCU update...");
+    at_mcu_update_start_task();
+    at_web_response_ok(req);
+    return ESP_OK;
+}
+
+static void suicide_task(void *arg) {
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    esp_restart();
+    vTaskDelete(NULL);
+}
+
+static esp_err_t check_bootloader_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "Checking STM32 bootloader...");
+    
+    esp_err_t ret = at_mcu_check_bootloader();
+    
+    char* resp_str;
+    if (ret == ESP_OK) {
+        resp_str = "{\"status\": 0, \"msg\": \"Bootloader OK\"}";
+    } else {
+        resp_str = "{\"status\": 1, \"msg\": \"Bootloader Check Failed\"}";
+    }
+    
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, resp_str, strlen(resp_str));
+    
+    // Delayed restart to restore system state (since UART was hijacked)
+    xTaskCreate(suicide_task, "suicide", 2048, NULL, 5, NULL);
+    
+    return ESP_OK;
+}
+
+static esp_err_t mcu_update_status_handler(httpd_req_t *req) {
+    int status = 0;
+    uint32_t written = 0;
+    uint32_t total = 0;
+    
+    at_mcu_update_get_status(&status, &written, &total);
+    
+    char resp_str[128];
+    snprintf(resp_str, sizeof(resp_str), "{\"status\": %d, \"written\": %u, \"total\": %u}", status, written, total);
+    
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, resp_str, strlen(resp_str));
+    return ESP_OK;
+}
+
 static esp_err_t start_web_server(const char *base_path, uint16_t server_port)
 {
     ESP_AT_WEB_SERVER_CHECK(base_path, "wrong base path", err);
@@ -2018,7 +2026,7 @@ static esp_err_t start_web_server(const char *base_path, uint16_t server_port)
     strlcpy(s_web_context->base_path, base_path, sizeof(s_web_context->base_path));
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 12;
+    config.max_uri_handlers = 14; // Increased again for mcu_status
     config.max_open_sockets = 7; // It cannot be less than 7.
     config.server_port = server_port;
     config.uri_match_fn = httpd_uri_match_wildcard; // Enable wildcard matching
@@ -2040,6 +2048,9 @@ static esp_err_t start_web_server(const char *base_path, uint16_t server_port)
         {"/getotainfo", HTTP_GET, ota_info_get_handler, s_web_context},
         {"/setotadata", HTTP_POST, ota_data_post_handler, s_web_context},
         {"/update_packet", HTTP_POST, update_packet_handler, s_web_context},
+        {"/update_mcu", HTTP_POST, update_mcu_handler, s_web_context},
+        {"/check_bootloader", HTTP_POST, check_bootloader_handler, s_web_context},
+        {"/mcu_update_status", HTTP_GET, mcu_update_status_handler, s_web_context},
         {"/*", HTTP_GET, web_common_get_handler, s_web_context}, // Match everything else
     };
 

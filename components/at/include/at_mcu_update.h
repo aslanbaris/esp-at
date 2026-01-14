@@ -4,38 +4,38 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef AT_MCU_UPDATE_H
-#define AT_MCU_UPDATE_H
+#pragma once
 
+#include <stdint.h>
 #include "esp_err.h"
 
-/**
- * @brief Initialize MCU update GPIOs (Reset and Boot)
- */
+// AN3155 Command Codes
+#define AN3155_CMD_GET              0x00
+#define AN3155_CMD_GET_VER          0x01
+#define AN3155_CMD_GET_ID           0x02
+#define AN3155_CMD_READ_MEM         0x11
+#define AN3155_CMD_GO               0x21
+#define AN3155_CMD_WRITE_MEM        0x31
+#define AN3155_CMD_ERASE            0x43 // Extended Erase (for modern chips) or 0x44 (old Erase)
+#define AN3155_CMD_EXT_ERASE        0x44 // Check datasheet, often 0x44 is standard erase, 0x43 extended
+#define AN3155_CMD_WRITE_PROTECT    0x63
+#define AN3155_CMD_WRITE_UNPROTECT  0x73
+#define AN3155_CMD_READOUT_PROTECT  0x82
+#define AN3155_CMD_READOUT_UNPROTECT 0x92
+
+#define AN3155_ACK                  0x79
+#define AN3155_NACK                 0x1F
+
 void at_mcu_update_init(void);
 
-/**
- * @brief Write data to the MCU firmware partition.
- * 
- * @param buffer specific buffer data
- * @param len specific length
- * @param offset offset in partition
- * @return esp_err_t 
- */
-esp_err_t at_mcu_fw_write(const void *buffer, uint32_t len, uint32_t offset);
+// AT Command Wrapper
+uint8_t at_mcu_update_cmd(uint8_t para_num);
 
-/**
- * @brief Start the MCU Update process (Phase 2).
- * 
- * This function handles the entire update flow:
- * 1. Suspend AT Parser
- * 2. Enter Bootloader
- * 3. Erase and Write STM32 Flash
- * 4. Verify (Optional)
- * 5. Resume AT Parser
- * 
- * @return esp_err_t 
- */
-void at_mcu_update_start(void *pvParameters);
+// Web Server trigger
+void at_mcu_update_start_task(void);
 
-#endif // AT_MCU_UPDATE_H
+// Debug Tool
+esp_err_t at_mcu_check_bootloader(void);
+
+// Get Update Status (0=Idle, 1=Running, 2=Done, -1=Error)
+void at_mcu_update_get_status(int *status, uint32_t *written, uint32_t *total);

@@ -348,7 +348,12 @@
               try {
                 const resp = JSON.parse(xhr.responseText);
                 if (resp.state === 0) {
-                  showSuccess("Update Successful!", successId, errorId);
+                  if (partitionName === 'mcu') {
+                    showSuccess("Upload Complete. Flashing MCU... (Please Wait)", successId, errorId);
+                    triggerMCUFlash(successId, errorId);
+                  } else {
+                    showSuccess("Update Successful!", successId, errorId);
+                  }
                 } else {
                   showError("Update Failed (State: " + resp.state + ")", errorId, successId);
                 }
@@ -384,6 +389,21 @@
 
       function hideSuccess(successId) {
         document.getElementById(successId).style.display = 'none';
+      }
+
+      function triggerMCUFlash(successId, errorId) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/update_mcu", true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              showSuccess("MCU Flash Initiated. System will restart...", successId, errorId);
+            } else {
+              showError("MCU Flash Trigger Failed!", errorId, successId);
+            }
+          }
+        };
+        xhr.send();
       }
     </script>
 

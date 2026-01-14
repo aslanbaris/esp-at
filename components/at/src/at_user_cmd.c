@@ -22,6 +22,8 @@
 #include "at_compress_ota.h"
 #endif
 
+#include "at_mcu_update.h"
+
 #include "esp_http_client.h"
 #include "esp_https_ota.h"
 #include "esp_at_core.h"
@@ -669,6 +671,7 @@ static const esp_at_cmd_struct s_at_user_cmd[] = {
     {"+USERWKMCUCFG", NULL, NULL, at_setup_cmd_userwkmcucfg, NULL},
     {"+USERMCUSLEEP", NULL, NULL, at_setup_cmd_usermcusleep, NULL},
 #endif
+    {"+STMUPDATE", NULL, NULL, at_mcu_update_cmd, NULL},
 };
 
 bool esp_at_user_cmd_regist(void)

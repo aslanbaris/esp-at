@@ -33,7 +33,7 @@
       <div class="navbar-menu fadeIn animated faster" id="navbar-menu">
         <div class="navbar-end">
           <div class="navbar-item">
-            <span>John Doe</span>
+            <span>admin</span>
           </div>
           <a title="Log out" class="navbar-item is-desktop-icon-only" onclick="logout(); return false;" href="#">
             <span class="icon"><i class="mdi mdi-logout"></i></span>
@@ -141,6 +141,9 @@
                   <div class="control">
                     <button class="button is-primary" onclick="startMCUUpdate()" id="btn_mcu_upgrade">Start MCU
                       Update</button>
+                    <button class="button is-info" onclick="checkBootloader()" id="btn_check_bl"
+                      style="margin-left: 10px;">Test
+                      Connection</button>
                   </div>
                 </div>
                 <p class="help is-danger" id="mcu_error_msg" style="display: none;"></p>
@@ -150,13 +153,13 @@
           </div>
         </div>
 
-        <!-- New Right Card: OTA Upgrade -->
+        <!-- New Right Card: Wifi Module Update -->
         <div class="tile is-parent">
           <div class="card tile is-child">
             <header class="card-header">
               <p class="card-header-title">
                 <span class="icon"><i class="mdi mdi-cloud-upload default"></i></span>
-                OTA Upgrade
+                Wifi Module Update
               </p>
             </header>
             <div class="card-content">
@@ -210,7 +213,7 @@
 
                 <div class="field">
                   <div class="control">
-                    <button class="button is-primary" onclick="startOTA()" id="btn_upgrade">Start OTA Upgrade</button>
+                    <button class="button is-primary" onclick="startOTA()" id="btn_upgrade">Start Module Update</button>
                   </div>
                 </div>
                 <p class="help is-danger" id="error_msg" style="display: none;"></p>
@@ -311,8 +314,8 @@
           return;
         }
 
-        // Warning: This object name 'mcu' must be handled by the backend!
-        performUpdate(fileInput.files[0], 'mcu', 'btn_mcu_upgrade', 'mcu_progress', 'mcu_error_msg', 'mcu_success_msg');
+        // Warning: This object name 'mcu_fw' must be handled by the backend!
+        performUpdate(fileInput.files[0], 'mcu_fw', 'btn_mcu_upgrade', 'mcu_progress', 'mcu_error_msg', 'mcu_success_msg');
       }
 
       function performUpdate(file, partitionName, btnId, progressId, errorId, successId) {
@@ -348,7 +351,12 @@
               try {
                 const resp = JSON.parse(xhr.responseText);
                 if (resp.state === 0) {
-                  showSuccess("Update Successful!", successId, errorId);
+                  if (partitionName === 'mcu_fw') {
+                    showSuccess("Upload Complete. Flashing MCU... (Please Wait)", successId, errorId);
+                    triggerMCUFlash(successId, errorId);
+                  } else {
+                    showSuccess("Update Successful!", successId, errorId);
+                  }
                 } else {
                   showError("Update Failed (State: " + resp.state + ")", errorId, successId);
                 }
@@ -384,6 +392,90 @@
 
       function hideSuccess(successId) {
         document.getElementById(successId).style.display = 'none';
+      }
+
+      function triggerMCUFlash(successId, errorId) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/update_mcu", true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              showSuccess("MCU Flash Initiated. Flashing... Please Wait.", successId, errorId);
+              // Start polling progress
+              pollMCUStatus(successId, errorId);
+            } else {
+              showError("MCU Flash Trigger Failed!", errorId, successId);
+            }
+          }
+        };
+        xhr.send();
+      }
+
+      function pollMCUStatus(successId, errorId) {
+        const pollInterval = setInterval(function () {
+          const xhr = new XMLHttpRequest();
+          xhr.open("GET", "/mcu_update_status", true);
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              try {
+                const resp = JSON.parse(xhr.responseText);
+                // Status: 0=Idle, 1=Running, 2=Done, -1=Error
+                if (resp.status === 1) {
+                  var pct = 0;
+                  if (resp.total > 0) pct = Math.round((resp.written / resp.total) * 100);
+                  showSuccess("Flashing MCU: " + pct + "% (" + resp.written + "/" + resp.total + " bytes)", successId, errorId);
+
+                  // Optional: Update progress bar if we reused one
+                  // document.getElementById('mcu_progress').value = pct;
+
+                } else if (resp.status === 2) {
+                  showSuccess("MCU Update Complete! System Restarting...", successId, errorId);
+                  clearInterval(pollInterval);
+                } else if (resp.status === -1) {
+                  showError("MCU Update FAILED! Check Logs.", errorId, successId);
+                  clearInterval(pollInterval);
+                }
+              } catch (e) { console.log(e); }
+            }
+          };
+          xhr.send();
+        }, 1000);
+      }
+
+      function checkBootloader() {
+        const btn = document.getElementById('btn_check_bl');
+        const successId = 'mcu_success_msg';
+        const errorId = 'mcu_error_msg';
+
+        btn.classList.add('is-loading');
+        btn.disabled = true;
+        hideError(errorId);
+        hideSuccess(successId);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/check_bootloader", true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            btn.classList.remove('is-loading');
+            btn.disabled = false;
+
+            if (xhr.status === 200) {
+              try {
+                const resp = JSON.parse(xhr.responseText);
+                if (resp.status === 0) {
+                  showSuccess("Bootloader Connection OK!", successId, errorId);
+                } else {
+                  showError("Bootloader Connection Failed! (Check cabling/timing)", errorId, successId);
+                }
+              } catch (e) {
+                showError("Invalid response", errorId, successId);
+              }
+            } else {
+              showError("Request Failed (Status: " + xhr.status + ")", errorId, successId);
+            }
+          }
+        };
+        xhr.send();
       }
     </script>
 
